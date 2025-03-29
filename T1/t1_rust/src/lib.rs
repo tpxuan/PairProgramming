@@ -56,7 +56,6 @@ pub fn greedy_snake_move(snake: &[i32], fruit: &[i32]) -> i32 {
     if best_move == -1 {
         return -1;
     }
-
     best_move
 }
 
