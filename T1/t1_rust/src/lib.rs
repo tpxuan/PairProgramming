@@ -4,10 +4,11 @@ use wasm_bindgen::prelude::*;
 pub fn greedy_snake_move(snake: &[i32], fruit: &[i32]) -> i32 {
     // 确保输入数组长度正确
     if snake.len() != 8 || fruit.len() != 2 {
-        return 0; // 默认返回上（0），但这表示输入无效
+        return -1;
     }
 
     let (head_x, head_y) = (snake[0], snake[1]);
+    let (tail_x, tail_y) = (snake[6], snake[7]); // 蛇尾坐标
     let (fruit_x, fruit_y) = (fruit[0], fruit[1]);
 
     // 方向对应的坐标变化: 上 (0,1)，左 (-1,0)，下 (0,-1)，右 (1,0)
@@ -27,16 +28,14 @@ pub fn greedy_snake_move(snake: &[i32], fruit: &[i32]) -> i32 {
             continue;
         }
 
-        // 检查是否撞到自己的身体（排除蛇头）
-        for j in (2..8).step_by(2) {
-            if new_x == snake[j] && new_y == snake[j + 1] {
-                is_safe[i] = false;
-                break;
-            }
+        // 检查是否撞到自己的身体
+        if new_x == snake[2] && new_y == snake[3] {
+            is_safe[i] = false;
+            continue;
         }
     }
 
-    // 选择最优方向（贪心策略）
+    // **策略 1：优先选择能安全前往果子的方向**
     let mut min_distance = i32::MAX;
     for (i, &(dx, dy)) in directions.iter().enumerate() {
         if !is_safe[i] {
@@ -53,14 +52,13 @@ pub fn greedy_snake_move(snake: &[i32], fruit: &[i32]) -> i32 {
         }
     }
 
-    // 如果所有方向都不安全，默认返回上（0），但这意味着游戏结束
+    // **策略 2：如果所有方向都不安全（已被围住），返回上（-1）**
     if best_move == -1 {
-        return 0;
+        return -1;
     }
 
     best_move
 }
-
 
 
 #[cfg(test)]
